@@ -1,0 +1,13 @@
+---
+- hosts: "{{ hosts }}"
+  vars:
+    username: ansible
+  tasks:
+    - user: name="{{ username }}"
+            groups=sudo
+            append=yes
+      become: yes
+
+    - authorized_key: user="{{ username }}"
+                      key="{{ lookup('file', '~/.ssh/' + hosts + '.id_rsa.pub') }}"
+      become: yes
