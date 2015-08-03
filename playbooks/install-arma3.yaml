@@ -1,0 +1,22 @@
+
+---
+- hosts: "{{ hosts }}"
+  vars:
+    username: 'steam'
+    steamcmd_url: 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz'
+  become: yes
+  tasks:
+    - apt: name='lib32gcc1' state=present update_cache=yes
+
+    - user: name="{{ username }}"
+
+    - file: path="/home/{{ username }}/steamcmd" state='directory'
+      become_user: "{{ username }}"
+
+    - unarchive: src="{{ steamcmd_url }}" dest='/home/{{ username }}/steamcmd' copy=no
+      become_user: "{{ username }}"
+
+    - command: "./steamcmd +login {{ steamcmd_usr }} {{ steamcmd_pass }} +force_install_dir ../arma3 +app_update 233780 +validate +quit"
+      args:
+        chdir: '/home/{{ username }}/steamcmd'
+      become_user: "{{ username }}"

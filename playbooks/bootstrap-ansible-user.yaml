@@ -1,0 +1,23 @@
+---
+- hosts: "{{ hosts }}"
+  vars:
+    username: ansible
+  become: yes
+  tasks:
+    - user: name="{{ username }}"
+            groups=sudo
+            append=yes
+
+    - authorized_key: user="{{ username }}"
+                      key="{{ lookup('file', '~/.ssh/' + username + '.id_rsa.pub') }}"
+
+    - lineinfile: "dest=/etc/sudoers.d/ansible
+                  create='yes'
+                  regexp='^%ansible|^'
+                  line='%ansible ALL=(ALL) NOPASSWD:ALL'
+                  validate='visudo -cf %s'"
+
+    - lineinfile: "dest=/etc/sudoers
+                  regexp='^#includedir[ \t]*/etc/sudoers.d'
+                  line='#includedir /etc/sudoers.d'
+                  validate='visudo -cf %s'"
